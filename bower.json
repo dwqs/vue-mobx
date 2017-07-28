@@ -2,7 +2,7 @@
   "name": "vue-mobx",
   "main": "dist/index.js",
   "description": "Mobx binding for Vuejs 2",
-  "authors": "pomysky@gmail",
+  "authors": ["pomysky@gmail.com"],
   "license": "MIT",
   "ignore": [
     "*",
