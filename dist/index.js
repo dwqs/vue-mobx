@@ -26,11 +26,9 @@ function assert(condition, msg) {
         throw new Error("[vue-mobx]: " + msg);
     }
 }
-function getValidModel(c, states) {
+function getValidModel(states) {
     var res = {};
-    console.log('vue-mobx getValidModel', c);
     Object.keys(states).forEach(function (key) {
-        console.log('vue-mobx5555555555', states[key].hasOwnProperty('$mobx'));
         if (states[key].hasOwnProperty('$mobx')) {
             res[key] = states[key];
         }
@@ -62,7 +60,6 @@ function applyMixin(instance, config) {
     if (version >= 2) {
         instance.mixin({
             beforeCreate: function beforeCreate() {
-                console.log('vue-mobx 1111111,asdasd', this);
                 this.$observable = config.observable, this.$isObservable = config.isObservable;
             }
         });
@@ -97,22 +94,19 @@ function connect(mapData, mapMethods) {
     return function connectedComponent(vueComponent) {
         assert(isObject(mapData), "mapData should be a object not " + (typeof mapData === "undefined" ? "undefined" : _typeof$1(mapData)));
         assert(isObject(mapMethods), "mapMethods should be a object not " + (typeof mapMethods === "undefined" ? "undefined" : _typeof$1(mapMethods)));
-        console.log('vue-mobx, connect component', vueComponent);
-        var validModels = getValidModel(vueComponent, mapData);
+        var validModels = getValidModel(mapData);
         var validActions = getValidAction(mapMethods);
+        var mobxData = getMobxData(validModels);
         var oldMethodsAndData = {
             data: vueComponent.data && vueComponent.data() || {},
             methods: vueComponent.methods && vueComponent.methods || {}
         };
-        var mobxData = getMobxData(validModels);
-        console.log('oldMethodsAndData', oldMethodsAndData, mobxData);
         var enhanceVueComponent = Object.assign(vueComponent, {
             methods: __assign({}, Object.assign(oldMethodsAndData.methods, __assign({}, validActions))),
             data: function data() {
                 return Object.assign(oldMethodsAndData.data, __assign({}, mobxData));
             }
         });
-        console.log('11111111enhance component', enhanceVueComponent, enhanceVueComponent.data());
         return enhanceVueComponent;
     };
 }

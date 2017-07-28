@@ -8,7 +8,7 @@ export function assert(condition: boolean, msg: string): void {
     }
 }
 
-export function getValidModel(states: any): object {
+export function getValidModel(states: object): object {
     const res = {};
 
     Object.keys(states).forEach((key) => {
