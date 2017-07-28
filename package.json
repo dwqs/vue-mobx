@@ -1,11 +1,20 @@
 {
   "name": "vue-mobx",
   "version": "0.0.1",
-  "author": "dwqs",
+  "author": "pomysky@gmail.com",
   "description": "Mobx binding for Vuejs 2",
   "license": "MIT",
-  "main": "dist/test.min.js",
+  "main": "dist/index.min.js",
   "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwqs/vue-mobx"
+  },
+  "keywords": [
+    "vuejs",
+    "vue",
+    "mobx"
+  ],
   "scripts": {
     "clean": "rm -rf dist typings example/dist types",
     "prepush": "npm run lint",
@@ -31,6 +40,10 @@
     "uglify-es": "^3.0.26"
   },
   "dependencies": {},
+  "homepage": "https://github.com/dwqs/vue-mobx",
+  "bugs": {
+    "url": "https://github.com/dwqs/vue-mobx/issues"
+  },
   "engines": {
     "node": ">= 6.0.0",
     "npm": ">= 5.2.0"
