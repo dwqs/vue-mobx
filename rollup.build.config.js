@@ -17,7 +17,7 @@ config.plugins.push(
 export default {
     entry: 'src/index.ts',
     format: 'umd',
-    moduleName: 'test',
-    dest: 'dist/test.min.js',
+    moduleName: 'VueMobx',
+    dest: 'dist/index.min.js',
     plugins: config.plugins
 };
