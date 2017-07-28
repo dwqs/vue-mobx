@@ -1,8 +1,8 @@
 {
-  "name": "test",
-  "main": "dist/test.js",
-  "description": "A simple module build with ts-tool-template",
-  "authors": "your-email",
+  "name": "vue-mobx",
+  "main": "dist/index.js",
+  "description": "Mobx binding for Vuejs 2",
+  "authors": "pomysky@gmail",
   "license": "MIT",
   "ignore": [
     "*",
