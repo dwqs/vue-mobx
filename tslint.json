@@ -3,7 +3,7 @@
   "enable": true,
   "jsEnable": true,
   "rules": {
-    "max-line-length": [true, 120],
+    "max-line-length": [true, 200],
     "indent": [true, "indent", 4],
     "interface-name": [true, "never-prefix"],
     "jsdoc-format": false,
@@ -19,7 +19,8 @@
     "max-classes-per-file": [true, 5],
     "no-unused-variable": true,
     "quotemark": [true, "single", "avoid-escape"],
-    "object-literal-sort-keys":false
+    "object-literal-sort-keys":false,
+    "ordered-imports": [false]
   },
   "jsRules": {
     "max-line-length": [true, 120],
