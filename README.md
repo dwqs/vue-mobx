@@ -27,7 +27,7 @@ bower install redux-actions-promise
 
 ## Usage
 
-Obviously it works with Redux and Vuejs, install via NPM: `npm i --save mobx vue vue-mobx`:
+Obviously it works with Mobx and Vuejs, install via NPM: `npm i --save mobx vue vue-mobx`:
 
 ```
 // entry.js
@@ -81,6 +81,8 @@ export default test;
     })(TestComponent)
 </script>
 ```
+
+There is a full [example](https://github.com/dwqs/vue-mobx/tree/master/example).
 
 ## LICENSE
 
