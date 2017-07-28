@@ -10,19 +10,19 @@ Mobx binding for Vue.
 Install the pkg with npm:
 
 ```
-npm install redux-actions-promise --save
+npm install vue-mobx --save
 ```
 
 or yarn
 
 ```
-yarn add redux-actions-promise
+yarn add vue-mobx
 ```
 
 or bower
 
 ```
-bower install redux-actions-promise
+bower install vue-mobx
 ```
 
 ## Usage
@@ -83,6 +83,8 @@ export default test;
 ```
 
 There is a full [example](https://github.com/dwqs/vue-mobx/tree/master/example).
+
+You can also hot-link the CDN version: [https://unpkg.com/vue-mobx/dist/index.min.js](https://unpkg.com/vue-mobx@0.2.6/dist/index.min.js), `VueMobx` is exposed to `window` object.
 
 ## LICENSE
 
