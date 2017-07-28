@@ -1,5 +1,3 @@
-import Vue from 'vue';
-
 export function isObject(data: any): boolean {
     return data !== null && typeof data === 'object';
 }
