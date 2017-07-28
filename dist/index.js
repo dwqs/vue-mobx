@@ -28,8 +28,10 @@ function assert(condition, msg) {
 }
 function getValidModel(c, states) {
     var res = {};
+    console.log('vue-mobx getValidModel', c);
     Object.keys(states).forEach(function (key) {
-        if (c.$isObservable(states[key])) {
+        console.log('vue-mobx5555555555', states[key].hasOwnProperty('$mobx'));
+        if (states[key].hasOwnProperty('$mobx')) {
             res[key] = states[key];
         }
     });
@@ -53,13 +55,14 @@ function getMobxData(models) {
 }
 
 function applyMixin(instance, config) {
-    assert(!!config, "[vue-mobx] missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('observable') && typeof config.observable === 'function', "[vue-mobx] missed config#observable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "[vue-mobx] missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(!!config, "missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('observable') && typeof config.observable === 'function', "missed config#observable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
     var version = Number(instance.version.split('.')[0]);
     if (version >= 2) {
         instance.mixin({
             beforeCreate: function beforeCreate() {
+                console.log('vue-mobx 1111111,asdasd', this);
                 this.$observable = config.observable, this.$isObservable = config.isObservable;
             }
         });
@@ -94,6 +97,7 @@ function connect(mapData, mapMethods) {
     return function connectedComponent(vueComponent) {
         assert(isObject(mapData), "mapData should be a object not " + (typeof mapData === "undefined" ? "undefined" : _typeof$1(mapData)));
         assert(isObject(mapMethods), "mapMethods should be a object not " + (typeof mapMethods === "undefined" ? "undefined" : _typeof$1(mapMethods)));
+        console.log('vue-mobx, connect component', vueComponent);
         var validModels = getValidModel(vueComponent, mapData);
         var validActions = getValidAction(mapMethods);
         var oldMethodsAndData = {

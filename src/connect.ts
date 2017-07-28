@@ -14,16 +14,14 @@ export default function connect(mapData: object, mapMethods: object): <C extends
         assert(isObject(mapData), `mapData should be a object not ${typeof mapData}`);
         assert(isObject(mapMethods), `mapMethods should be a object not ${typeof mapMethods}`);
 
-        const validModels = getValidModel(vueComponent, mapData);
+        const validModels = getValidModel(mapData);
         const validActions = getValidAction(mapMethods);
+        const mobxData = getMobxData(validModels);
         
         const oldMethodsAndData = {
             data: ((vueComponent as any).data && (vueComponent as any).data()) || {},
             methods: ((vueComponent as any).methods && (vueComponent as any).methods) || {},
         };
-        const mobxData = getMobxData(validModels);
-
-        console.log('oldMethodsAndData', oldMethodsAndData, mobxData)
 
         const enhanceVueComponent = (Object as any).assign(vueComponent, {
             methods: {
@@ -35,7 +33,7 @@ export default function connect(mapData: object, mapMethods: object): <C extends
                 ...mobxData,
             }),
         });
-        console.log('11111111enhance component', enhanceVueComponent, enhanceVueComponent.data());
+
         return enhanceVueComponent;
     }
 }

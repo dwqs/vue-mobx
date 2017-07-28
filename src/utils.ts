@@ -10,12 +10,12 @@ export function assert(condition: boolean, msg: string): void {
     }
 }
 
-export function getValidModel < U extends Vue >(c: U, states: any): object {
+export function getValidModel(states: any): object {
     const res = {};
 
     Object.keys(states).forEach((key) => {
         // states[key].hasOwnProperty('$mobx')
-        if ((c as any).$isObservable(states[key])) {
+        if (states[key].hasOwnProperty('$mobx')) {
             res[key] = states[key]
         }
     });
