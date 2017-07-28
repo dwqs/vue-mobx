@@ -1,0 +1,13 @@
+{
+  "name": "test",
+  "main": "dist/test.js",
+  "description": "A simple module build with ts-tool-template",
+  "authors": "your-email",
+  "license": "MIT",
+  "ignore": [
+    "*",
+    "!dist",
+    "!LICENSE",
+    "!README.md"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "outDir": "lib",
+    "declaration": true,
+    "declarationDir": "typings",
+    "strict": true,
+    "isolatedModules": false,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "removeComments": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": true,
+    "allowUnusedLabels": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compileOnSave": false
+}

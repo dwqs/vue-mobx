@@ -1,0 +1,40 @@
+{
+  "name": "vue-mobx",
+  "version": "0.0.1",
+  "author": "dwqs",
+  "description": "Mobx binding for Vuejs 2",
+  "license": "MIT",
+  "main": "dist/test.min.js",
+  "typings": "types/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf dist typings example/dist types",
+    "prepush": "npm run lint",
+    "prebuild": "npm run prepush && npx tsc -p ./tsconfig.json",
+    "build": "npx rollup -c && npx rollup -c rollup.build.config.js",
+    "postbuild": "mkdir types && mv typings/index.d.ts types/ && rm -rf typings",
+    "lint": "npx tslint -p ./tsconfig.json --type-check src/**/*.ts",
+    "fix": "npx tslint -p ./tsconfig.json --type-check --fix src/**/*.ts"
+  },
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-es2015": "^6.24.1",
+    "debug": "^2.6.8",
+    "husky": "^0.14.2",
+    "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "rollup-plugin-uglify": "^2.0.1",
+    "tslint": "^5.4.3",
+    "typescript": "^2.4.1",
+    "uglify-es": "^3.0.26"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 5.2.0"
+  }
+}
