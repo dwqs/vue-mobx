@@ -22,4 +22,12 @@ const router = new VueRouter({
     routes: [
         { path: '/index', component: App }
     ]
-})
+});
+
+const app = new Vue({
+    router,
+    store,
+    ...Outer
+});
+
+app.$mount('#test');
