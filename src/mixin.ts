@@ -8,13 +8,10 @@ export default function applyMixin(instance: Vue, config: Config): void {
         !!config, 
         `missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
     );
+    
     assert(
-        config.hasOwnProperty('observable') && typeof config.observable === 'function', 
-        `missed config#observable parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
-    );
-    assert(
-        config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', 
-        `missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
+        config.hasOwnProperty('toJS') && typeof config.toJS === 'function', 
+        `missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
     );
 
     const version = Number((instance as any).version.split('.')[0]);
@@ -22,8 +19,14 @@ export default function applyMixin(instance: Vue, config: Config): void {
     if (version >= 2) {
         (instance as any).mixin({
             beforeCreate() {
-                this.$observable = config.observable,
-                this.$isObservable = config.isObservable 
+                this.$toJS = config.toJS;
+                if (config.observable && typeof config.observable === 'function') {
+                    this.$observable = config.observable;
+                }
+
+                if (config.isObservable && typeof config.isObservable === 'function') {
+                    this.$isObservable = config.isObservable ;
+                }
             },
         })
     } else {
