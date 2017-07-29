@@ -4,7 +4,7 @@
 
 Mobx binding for Vue.
 
-> Only supports Vuejs 2.x current.
+> Only supports Vuejs 2.x & Mobx 2.2.x or higher.
 
 ## Installation
 Install the pkg with npm:
