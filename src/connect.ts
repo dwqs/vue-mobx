@@ -8,14 +8,13 @@ import {
     getMobxData, 
 } from './utils';
 
-export default function connect(mapData: object, mapMethods: object): <C extends Vue>(vueComponent: C) => C {
+export default function connect(mapModels: object): <C extends Vue>(vueComponent: C) => C {
     return function connectedComponent<C extends Vue>(vueComponent: C): C{
 
-        assert(isObject(mapData), `mapData should be a object not ${typeof mapData}`);
-        assert(isObject(mapMethods), `mapMethods should be a object not ${typeof mapMethods}`);
+        assert(isObject(mapModels), `mapData should be a object not ${typeof mapModels}`);
 
-        const validModels = getValidModel(mapData);
-        const validActions = getValidAction(mapMethods);
+        const validModels = getValidModel(mapModels);
+        const validActions = getValidAction(validModels);
         const mobxData = getMobxData(validModels);
         
         const oldMethodsAndData = {

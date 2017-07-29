@@ -8,25 +8,44 @@ export function assert(condition: boolean, msg: string): void {
     }
 }
 
-export function getValidModel(states: object): object {
+const $mobx: string = '__mobxLazyInitializers';
+
+function getProto(obj: object): object {
+    return Object.getPrototypeOf(obj);
+}
+
+function getOwnProps(obj: object): string[] {
+    return Object.getOwnPropertyNames(obj);
+}
+
+export function getValidModel(models: object): object {
     const res = {};
 
-    Object.keys(states).forEach((key) => {
-        // states[key].hasOwnProperty('$mobx')
-        if (states[key].hasOwnProperty('$mobx')) {
-            res[key] = states[key]
+    Object.keys(models).forEach((key) => {
+        const proto: object = getProto(models[key]);
+        // if (models[key].hasOwnProperty('$mobx')) {
+        //     res[key] = models[key]
+        // }
+        if (proto.hasOwnProperty($mobx)) {
+            res[key] = models[key]
         }
     });
 
     return res;
 }
 
-export function getValidAction(actions: object): object {
+export function getValidAction(models: object): object {
     const res = {};
 
-    Object.keys(actions).forEach((key) => {
-        if (actions[key].isMobxAction) {
-            res[key] = actions[key]
+    Object.keys(models).forEach((key) => {
+        const props: string[] = getOwnProps(getProto(models[key]));
+        // if (actions[key].isMobxAction) {
+        //     res[key] = actions[key]
+        // }
+        for (let i = 0, l = props.length; i < l; i++) {
+            if (typeof models[key][props[i]] === 'function' && models[key][props[i]].isMobxAction) {
+                res[props[i]] = models[key][props[i]];
+            }
         }
     });
 
@@ -34,12 +53,18 @@ export function getValidAction(actions: object): object {
 }
 
 export function getMobxData(models: object): object {
-    let res = {};
+    const res = {};
 
     Object.keys(models).forEach((key) => {
-        res = (Object as any).assign({}, res, {
-            ...models[key].$mobx.values,
-        })
+        const props: string[] = getOwnProps(getProto(models[key]));
+        // res = (Object as any).assign({}, res, {
+        //     ...models[key].$mobx.values,
+        // })
+        for (let i = 0, l = props.length; i < l; i++) {
+            if (props[i] !== 'constructor' && props[i] !== $mobx && typeof models[key][props[i]] !== 'function') {
+                res[props[i]] = models[key][props[i]];
+            }
+        }
     });
     
     return res;
