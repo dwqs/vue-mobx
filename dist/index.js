@@ -26,20 +26,31 @@ function assert(condition, msg) {
         throw new Error("[vue-mobx]: " + msg);
     }
 }
-function getValidModel(states) {
+var $mobx = '__mobxLazyInitializers';
+function getProto(obj) {
+    return Object.getPrototypeOf(obj);
+}
+function getOwnProps(obj) {
+    return Object.getOwnPropertyNames(obj);
+}
+function getValidModel(models) {
     var res = {};
-    Object.keys(states).forEach(function (key) {
-        if (states[key].hasOwnProperty('$mobx')) {
-            res[key] = states[key];
+    Object.keys(models).forEach(function (key) {
+        var proto = getProto(models[key]);
+        if (proto.hasOwnProperty($mobx)) {
+            res[key] = models[key];
         }
     });
     return res;
 }
-function getValidAction(actions) {
+function getValidAction(models) {
     var res = {};
-    Object.keys(actions).forEach(function (key) {
-        if (actions[key].isMobxAction) {
-            res[key] = actions[key];
+    Object.keys(models).forEach(function (key) {
+        var props = getOwnProps(getProto(models[key]));
+        for (var i = 0, l = props.length; i < l; i++) {
+            if (typeof models[key][props[i]] === 'function' && models[key][props[i]].isMobxAction) {
+                res[props[i]] = models[key][props[i]];
+            }
         }
     });
     return res;
@@ -47,20 +58,30 @@ function getValidAction(actions) {
 function getMobxData(models) {
     var res = {};
     Object.keys(models).forEach(function (key) {
-        res = Object.assign({}, res, __assign({}, models[key].$mobx.values));
+        var props = getOwnProps(getProto(models[key]));
+        for (var i = 0, l = props.length; i < l; i++) {
+            if (props[i] !== 'constructor' && props[i] !== $mobx && typeof models[key][props[i]] !== 'function') {
+                res[props[i]] = models[key][props[i]];
+            }
+        }
     });
     return res;
 }
 
 function applyMixin(instance, config) {
     assert(!!config, "missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('observable') && typeof config.observable === 'function', "missed config#observable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('toJS') && typeof config.toJS === 'function', "missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx");
     var version = Number(instance.version.split('.')[0]);
     if (version >= 2) {
         instance.mixin({
             beforeCreate: function beforeCreate() {
-                this.$observable = config.observable, this.$isObservable = config.isObservable;
+                this.$toJS = config.toJS;
+                if (config.observable && typeof config.observable === 'function') {
+                    this.$observable = config.observable;
+                }
+                if (config.isObservable && typeof config.isObservable === 'function') {
+                    this.$isObservable = config.isObservable;
+                }
             }
         });
     } else {
@@ -84,18 +105,18 @@ function install(instance, config) {
 if (typeof window !== 'undefined' && window.Vue && window.mobx) {
     install(window.Vue, {
         isObservable: window.mobx.isObservable,
+        toJS: window.mobx.toJS,
         observable: window.mobx.observable
     });
 }
 
 var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function connect(mapData, mapMethods) {
+function connect(mapModels) {
     return function connectedComponent(vueComponent) {
-        assert(isObject(mapData), "mapData should be a object not " + (typeof mapData === "undefined" ? "undefined" : _typeof$1(mapData)));
-        assert(isObject(mapMethods), "mapMethods should be a object not " + (typeof mapMethods === "undefined" ? "undefined" : _typeof$1(mapMethods)));
-        var validModels = getValidModel(mapData);
-        var validActions = getValidAction(mapMethods);
+        assert(isObject(mapModels), "mapData should be a object not " + (typeof mapModels === 'undefined' ? 'undefined' : _typeof$1(mapModels)));
+        var validModels = getValidModel(mapModels);
+        var validActions = getValidAction(validModels);
         var mobxData = getMobxData(validModels);
         var oldMethodsAndData = {
             data: vueComponent.data && vueComponent.data() || {},
