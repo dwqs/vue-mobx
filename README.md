@@ -1,4 +1,4 @@
-![npm-version](https://img.shields.io/npm/v/vue-mobx.svg) ![license](https://img.shields.io/npm/l/vue-mobx.svg) ![bower-license](https://img.shields.io/bower/l/vue-mobx.svg)
+[![build pass](https://api.travis-ci.org/dwqs/vue-mobx.svg?branch=master)](https://travis-ci.org/dwqs/vue-mobx) ![npm-version](https://img.shields.io/npm/v/vue-mobx.svg) ![license](https://img.shields.io/npm/l/vue-mobx.svg) ![bower-license](https://img.shields.io/bower/l/vue-mobx.svg)
 
 # vue-mobx
 
