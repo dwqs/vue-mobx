@@ -1,18 +1,34 @@
 import test from 'ava';
-import {observable, isObservable, action, isAction} from 'mobx';
+import {observable, isObservable, action, isAction, toJS} from 'mobx';
 import Vue from 'vue';
 import VueMobx from '../dist/index';
 
 Vue.use(VueMobx, {
+    // must
+    toJS,
+    // optional
     observable,
-    isObservable
+    isObservable 
 });
 
-let vm = new Vue({
-    data: {
-        count: 100
+class TestModel{
+    @observable 
+    name = 'vue-mobx';
+    count = 3;
+    @observable
+    info = {
+        project: 'vue-mobx'
     }
-});
+
+    @action
+    changeName(){
+        this.name = 'mobx-vue';
+    }
+
+    changeCount(){
+        this.count = 2; 
+    }
+}
 
 test('connect should be a function', (t) => {
     t.plan(1);
@@ -20,119 +36,118 @@ test('connect should be a function', (t) => {
     t.is(typeof VueMobx.connect, 'function');
 });
 
-test('connect function should be a vue component', (t) => {
-    t.plan(1);
-    let enhanceComponent = VueMobx.connect({}, {})(vm);
-    t.true(enhanceComponent instanceof Vue);
-});
-
-test('$observable should be a function', (t) => {
-    t.plan(1);
-    t.is(typeof vm.$observable, 'function');
-});
-
 test('the parameter of connect function should be a object(besides null)', (t) => {
-    t.plan(15);
+    t.plan(9);
+
+    let vm = new Vue({
+        template: '<div>parameter test</div>'
+    })
+
     const error = t.throws(() => {
-        VueMobx.connect('test', {})(vm)
+        VueMobx.connect('test')(vm)
     }, Error);
 
     const error2 = t.throws(() => {
-        VueMobx.connect(undefined, {})(vm)
+        VueMobx.connect(undefined)(vm)
     }, Error);
 
     const error3 = t.throws(() => {
-        VueMobx.connect(3, {})(vm)
+        VueMobx.connect(3)(vm)
     }, Error);
 
     const error4 = t.throws(() => {
-        VueMobx.connect({}, 'test')(vm)
+        VueMobx.connect(null)(vm)
     }, Error);
 
-    const error5 = t.throws(() => {
-        VueMobx.connect({}, undefined)(vm)
-    }, Error);
-
-    const error6 = t.throws(() => {
-        VueMobx.connect({}, 3)(vm)
-    }, Error);
-
-    const error7 = t.throws(() => {
-        VueMobx.connect({}, null)(vm)
-    }, Error);
-
-    let enhanceComponent = VueMobx.connect({}, {})(vm);;
+    let enhanceComponent = VueMobx.connect({})(vm);;
 
     t.true(error.message.includes('string'));
     t.true(error2.message.includes('undefined'));
     t.true(error3.message.includes('number'));
-    t.true(error4.message.includes('string'));
-    t.true(error5.message.includes('undefined'));
-    t.true(error6.message.includes('number'));
-    t.true(error7 instanceof Error);
+    t.true(error4 instanceof Error);
     t.true(enhanceComponent instanceof Vue);
 });
 
 test('same property will be override', (t) => {
-    t.plan(3);
+    t.plan(1);
 
-    let testModel = observable({
-        count: 20,
-        name: 'vue-mobx'
-    });
-    let vm2 = VueMobx.connect({
+    let testModel = new TestModel();
+    let com = {
+        template: '<div>same property will be override</div>',
+        data(){
+            return {
+                name: 'hello'
+            }
+        }
+    }
+    let enhanceComponent = VueMobx.connect({
         testModel
-    }, {})(vm);
+    })(com);
 
-    t.true(vm2.$isObservable(testModel));
-    t.is(20, vm2.data().count.value);
-    t.is('vue-mobx', vm2.data().name.value);
+    let vc = new Vue({
+        ...enhanceComponent
+    });
+
+    t.is(vc.$data.name, 'vue-mobx');
 });
 
 test('property which is not obserable will not be merged', (t) => {
-    t.plan(2);
+    t.plan(3);
 
-    let obj = {
-        name: 'test'
-    };
-    let vm2 = VueMobx.connect({
-        obj
-    }, {})(new Vue({
-        data: {
-            count: 10
-        }
-    }));
+    let testModel = new TestModel();
+    
+    let enhanceComponent = VueMobx.connect({
+        testModel
+    })({});
 
-    t.false(vm2.$isObservable(obj));
-    t.false(vm2.data().hasOwnProperty('name'));
-});
-
-test('test methods and data change', (t) => {
-    t.plan(5);
-
-    function testAva(){}
-
-    let testModel = observable({
-        name: 'vue-mobx',
-        changeName: action.bound(function(){
-            this.name = 'mobx-vue';
-        })
+    let vc = new Vue({
+        ...enhanceComponent
     });
 
-    let vm2 = VueMobx.connect({
+    t.true(vc.$data.hasOwnProperty('name'));
+    t.false(vc.$data.hasOwnProperty('count'));
+    t.false(vc.hasOwnProperty('changeCount'));
+});
+
+class TestModel2 {
+    msg = 'TestModel2';
+}
+
+test('test methods and data change', (t) => {
+    t.plan(9);
+
+    let testModel = new TestModel();
+
+    let component = {
+        template: '<div>hello</div>',
+        data(){
+            return {
+                message: 'hello'
+            }
+        }
+    }
+
+    let enhanceComponent = VueMobx.connect({
         testModel
-    }, {
-        'changeName': testModel.changeName,
-        'testAva': testAva
-    })(new Vue());
+    })(component);
 
-    t.true(vm2.hasOwnProperty('methods'));
-    t.false(vm2.hasOwnProperty('testAva'));
-    t.is(typeof vm2.methods['changeName'], 'function');
-    t.is(vm2.data().name.value, 'vue-mobx');
-    
+    let vc = new Vue({
+        ...enhanceComponent
+    });
+
+    t.deepEqual({name: 'vue-mobx', info: {project: 'vue-mobx'}, message: 'hello'}, vc.$data) 
+    t.true(vc.hasOwnProperty('changeName'));
+
+    t.is(typeof vc.$observable, 'function');
+    t.is(typeof vc.$isObservable, 'function');
+    t.is(typeof vc.$toJS, 'function');
+
+    t.true(vc.$isObservable(testModel));
+    t.false(vc.$isObservable(new TestModel2()));
+    t.deepEqual({ project: 'vue-mobx' }, vc.$toJS(vc.$data.info));
+
     // call method
-    vm2.methods['changeName']();
+    vc.changeName();
 
-    t.is(vm2.data().name.value, 'mobx-vue');
+    t.is(vc.$data.name, 'mobx-vue');
 });
