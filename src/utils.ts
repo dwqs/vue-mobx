@@ -15,6 +15,7 @@ function getProto(obj: object): object {
 }
 
 function getOwnProps(obj: object): string[] {
+    // ES6 class methods aren't enumerable, can't use Object.keys
     return Object.getOwnPropertyNames(obj);
 }
 
