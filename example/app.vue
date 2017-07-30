@@ -5,7 +5,7 @@
             <p @click="changeCount">Update</p>
         </div>
         <ul>
-            <li v-for="(item, index) in $observable(numbers.value).slice()" :key="index" @click="deleteTodo(index)">
+            <li v-for="(item, index) in $toJS(numbers)" :key="index" @click="deleteTodo(index)">
                 {{item}}
             </li>
         </ul>
@@ -24,16 +24,12 @@
         },
 
         updated(){
-            console.log('info updated', this.info.value);
+            console.log('info updated', this.$toJS(this.info));
         }
     };
 
     export default connect({
-        // map data
+        // map models
         testModel
-    }, {
-        // map methods
-        "changeCount": testModel.changeCount,
-        "deleteTodo": testModel.deleteTodo
     })(TestComponent)
 </script>

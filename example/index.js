@@ -1,16 +1,17 @@
 import Vue from 'vue';
 import VueRouter from "vue-router";
-import {observable, isObservable} from 'mobx';
+import {observable, isObservable, toJS} from 'mobx';
 import VueMobx from 'vue-mobx';
 
 Vue.use(VueRouter);
 Vue.use(VueMobx, {
     /**
      * config is needed.
-     * you can visit it by this.$observable/this.$isObservable in your vue component
+     * you can visit it by this.$observable/this.$isObservable/$toJS in your vue component
      */
-    observable: observable,
-    isObservable: isObservable
+    toJS: toJS,  // must
+    observable: observable,  //optional
+    isObservable: isObservable //optional
 });
 
 import App from './app.vue';

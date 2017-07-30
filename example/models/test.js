@@ -13,10 +13,9 @@ class Test {
     }
 
     /**
-     * 1. use @action.bound for bind correct this.
-     * 2. only the method used @action decorator will be merge into vue component's methods
+     * only the method used @action decorator will be merge into vue component's methods
      */
-    @action.bound   
+    @action   
     changeCount(){
         ++this.count;
         this.info = Object.assign({}, this.info, {
@@ -30,7 +29,7 @@ class Test {
         ++this.count2;
     }
 
-    @action.bound
+    @action
     deleteTodo(index){
         let v = Promise.resolve('deleteTodo');
         let list = observable(this.numbers).slice();
