@@ -32,12 +32,13 @@ Obviously it works with Mobx and Vuejs, install via NPM: `npm i --save mobx vue 
 ```
 // entry.js
 import Vue from 'vue';
-import {observable, isObservable} from 'mobx';
+import {observable, isObservable, toJS} from 'mobx';
 import VueMobx from 'vue-mobx';
 
 Vue.use(VueMobx, {
-    observable: observable,
-    isObservable: isObservable
+    toJS: toJS, // must
+    observable: observable,  // optional
+    isObservable: isObservable // optional
 });
 
 // create models
@@ -73,11 +74,8 @@ export default test;
     }
     
     export default connect({
-        // map state
+        // map models
         testModel
-    }, {
-        // map methods
-        'changeCount': testModel.changeCount
     })(TestComponent)
 </script>
 ```
