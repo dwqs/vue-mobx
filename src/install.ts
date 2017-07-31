@@ -1,31 +1,12 @@
 import Vue from 'vue';
-import {IObservableFactory, IObservableFactories} from 'mobx';
 
 import applyMixin from './mixin';
+import { Config, Options } from './options'
 
-export type isObservable = (value: any, property?: string) => boolean;
-export type observable =  IObservableFactory & IObservableFactories & {
-    deep: {
-        struct<T>(initialValue?: T): T;
-    };
-    ref: {
-        struct<T>(initialValue?: T): T;
-    };
-};
 
-export type toJST = <T>(source: T, detectCycles?: boolean) => T
-export type toJSAny = (source: any, detectCycles?: boolean) => any
-export type toJSArr = (source: any, detectCycles: boolean, alreadySeen: Array<[any, any]>) => any
+let vm: typeof Vue; 
 
-export interface Config {
-    toJS: toJST | toJSAny | toJSArr,
-    isObservable?: isObservable,
-    observable?: observable
-}
-
-let vm: Vue; 
-
-export function install(instance: Vue, config: Config) {
+export function install(instance: typeof Vue, config: Config) {
     if (vm) {
         if (process.env.NODE_ENV !== 'production') {
             console.error(
@@ -35,6 +16,7 @@ export function install(instance: Vue, config: Config) {
         return;
     }
     vm = instance;
+    Options.saveOptions(config);
     applyMixin(vm, config)
 }
 
