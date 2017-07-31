@@ -1,6 +1,6 @@
 {
   "name": "vue-mobx",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "author": "pomysky@gmail.com",
   "description": "Mobx binding for Vuejs 2",
   "license": "MIT",
