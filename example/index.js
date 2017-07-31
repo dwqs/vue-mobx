@@ -10,8 +10,8 @@ Vue.use(VueMobx, {
      * you can visit it by this.$observable/this.$isObservable/$toJS in your vue component
      */
     toJS: toJS,  // must
+    isObservable: isObservable, //must
     observable: observable,  //optional
-    isObservable: isObservable //optional
 });
 
 import App from './app.vue';
