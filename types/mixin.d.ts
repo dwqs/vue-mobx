@@ -1,3 +1,3 @@
 import Vue from 'vue';
-import { Config } from './install';
-export default function applyMixin(instance: Vue, config: Config): void;
+import { Config } from './options';
+export default function applyMixin(instance: typeof Vue, config: Config): void;
