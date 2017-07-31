@@ -8,7 +8,7 @@ import {
     getMobxData, 
 } from './utils';
 
-export default function connect(mapModels: object): <C extends Vue>(vueComponent: C) => C {
+export function connect(mapModels: object): <C extends Vue>(vueComponent: C) => C {
     return function connectedComponent<C extends Vue>(vueComponent: C): C{
 
         assert(isObject(mapModels), `mapData should be a object not ${typeof mapModels}`);
