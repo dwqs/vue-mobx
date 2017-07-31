@@ -16,6 +16,14 @@ const __assign = Object.assign || function (target) {
     return target;
 };
 
+var Options = function () {
+    function Options() {}
+    Options.saveOptions = function (config) {
+        Options.options = config;
+    };
+    return Options;
+}();
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function isObject(data) {
@@ -36,8 +44,7 @@ function getOwnProps(obj) {
 function getValidModel(models) {
     var res = {};
     Object.keys(models).forEach(function (key) {
-        var proto = getProto(models[key]);
-        if (proto.hasOwnProperty($mobx)) {
+        if (Options.options.isObservable(models[key])) {
             res[key] = models[key];
         }
     });
@@ -71,16 +78,15 @@ function getMobxData(models) {
 function applyMixin(instance, config) {
     assert(!!config, "missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
     assert(config.hasOwnProperty('toJS') && typeof config.toJS === 'function', "missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
     var version = Number(instance.version.split('.')[0]);
     if (version >= 2) {
         instance.mixin({
             beforeCreate: function beforeCreate() {
                 this.$toJS = config.toJS;
+                this.$isObservable = config.isObservable;
                 if (config.observable && typeof config.observable === 'function') {
                     this.$observable = config.observable;
-                }
-                if (config.isObservable && typeof config.isObservable === 'function') {
-                    this.$isObservable = config.isObservable;
                 }
             }
         });
@@ -100,6 +106,7 @@ function install(instance, config) {
         return;
     }
     vm = instance;
+    Options.saveOptions(config);
     applyMixin(vm, config);
 }
 if (typeof window !== 'undefined' && window.Vue && window.mobx) {
