@@ -1,3 +1,5 @@
+import { Options } from './options';
+
 export function isObject(data: any): boolean {
     return data !== null && typeof data === 'object';
 }
@@ -23,11 +25,13 @@ export function getValidModel(models: object): object {
     const res = {};
 
     Object.keys(models).forEach((key) => {
-        const proto: object = getProto(models[key]);
-        // if (models[key].hasOwnProperty('$mobx')) {
+        // const proto: object = getProto(models[key]);
+        // if (proto.hasOwnProperty($mobx)) {
         //     res[key] = models[key]
         // }
-        if (proto.hasOwnProperty($mobx)) {
+
+        // support typescript
+        if (Options.options.isObservable(models[key])) {
             res[key] = models[key]
         }
     });
