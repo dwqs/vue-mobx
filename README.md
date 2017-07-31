@@ -37,8 +37,8 @@ import VueMobx from 'vue-mobx';
 
 Vue.use(VueMobx, {
     toJS: toJS, // must
+    isObservable: isObservable, // must
     observable: observable,  // optional
-    isObservable: isObservable // optional
 });
 
 // create models
