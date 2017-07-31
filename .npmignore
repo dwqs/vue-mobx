@@ -1,10 +1,13 @@
 src
-types
 .gitignore
 .vscode
 .npmrc
 .babelrc
 *.js
-*.json
 node_modules
 example
+lib
+.gitattributes
+.travis.yml
+tslint.json
+bower.json
