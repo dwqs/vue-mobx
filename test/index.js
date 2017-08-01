@@ -6,9 +6,10 @@ import VueMobx from '../dist/index';
 Vue.use(VueMobx, {
     // must
     toJS,
+    // must
+    isObservable,
     // optional
     observable,
-    isObservable 
 });
 
 class TestModel{
