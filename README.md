@@ -29,7 +29,7 @@ bower install vue-mobx
 
 Obviously it works with Mobx and Vuejs, install via NPM: `npm i --save mobx vue vue-mobx`:
 
-```
+```js
 // entry.js
 import Vue from 'vue';
 import {observable, isObservable, toJS} from 'mobx';
@@ -57,7 +57,9 @@ Class Test {
 
 const test = new Test();
 export default test;
+```
 
+```vue
 // in vue component
 <template>
     <div>
