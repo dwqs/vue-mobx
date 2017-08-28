@@ -29,7 +29,9 @@ bower install vue-mobx
 
 Obviously it works with Mobx and Vuejs, install via NPM: `npm i --save mobx vue vue-mobx`:
 
-```
+#### 1. install vue-mobx plugin:
+
+```js
 // entry.js
 import Vue from 'vue';
 import {observable, isObservable, toJS} from 'mobx';
@@ -40,7 +42,10 @@ Vue.use(VueMobx, {
     isObservable: isObservable, // must
     observable: observable,  // optional
 });
+```
+#### 2. create models:
 
+```js
 // create models
 
 import {observable, action} from 'mobx';
@@ -57,7 +62,11 @@ Class Test {
 
 const test = new Test();
 export default test;
+```
 
+#### 3. use models in vue component:
+
+```js
 // in vue component
 <template>
     <div>
@@ -77,6 +86,29 @@ export default test;
         // map models
         testModel
     })(TestComponent)
+</script>
+```
+
+You also can use class syntax with [vue-class-component](https://github.com/vuejs/vue-class-component) and `vue-mobx@>=1.3.2`:
+
+```js
+<template>
+    <div>
+        <p>count: {{count}}</p>
+        <p @click="changeCount">Update</p>
+    </div>
+</template>    
+<script>
+    import testModel from './mobx/test';
+    import {connect} from 'vue-mobx';
+    import Vue from 'vue';
+    import Component from 'vue-class-component';
+
+    @connect({timeModel})
+    @Component
+    export default class TestComponent extends Vue {
+        name: string = 'info';
+    };
 </script>
 ```
 
