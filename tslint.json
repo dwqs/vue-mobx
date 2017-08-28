@@ -20,7 +20,8 @@
     "no-unused-variable": true,
     "quotemark": [true, "single", "avoid-escape"],
     "object-literal-sort-keys":false,
-    "ordered-imports": [false]
+    "ordered-imports": [false],
+    "no-string-literal": false
   },
   "jsRules": {
     "max-line-length": [true, 120],
