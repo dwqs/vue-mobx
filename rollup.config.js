@@ -9,6 +9,7 @@ export default {
     format: 'umd',
     moduleName: 'VueMobx',
     dest: 'dist/index.js',
+    external: ['vue'],
     plugins: [
         builtins(),
         resolve({

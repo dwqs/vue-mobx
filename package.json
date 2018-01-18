@@ -21,7 +21,8 @@
     "clean": "rm -rf dist types",
     "prepush": "npm run lint",
     "prebuild": "npm run prepush && npx tsc -p ./tsconfig.json",
-    "build": "npx rollup -c && npx rollup -c rollup.build.config.js",
+    "build": "npx rollup -c",
+    "build:ug": "npx rollup -c && npx rollup -c rollup.build.config.js",
     "lint": "npx tslint -p ./tsconfig.json --type-check src/**/*.ts",
     "fix": "npx tslint -p ./tsconfig.json --type-check --fix src/**/*.ts"
   },
