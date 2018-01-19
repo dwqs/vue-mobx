@@ -75,10 +75,10 @@ export function createComputedProps(models: object, data: object, computed: obje
 
     Object.keys(models).forEach((key) => {
         const model = models[key];
-        const props = getOwnProps(model);
+        const props = getOwnProps(getProto(model));
 
         for (let i = 0, l = props.length; i < l; i++) {
-            if (props[i] !== $mobx && props[i] !== $$mobx) {
+            if (props[i] !== $mobx && props[i] !== $$mobx && props[i] !== 'constructor' && typeof model[props[i]] !== 'function') {
                 assert(!(props[i] in data), `The computed property "${props[i]}"  is already defined in data.`);
                 assert(!(props[i] in computed), `The computed property "${props[i]}" is already defined in computed.`);
 
