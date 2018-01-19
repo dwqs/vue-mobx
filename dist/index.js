@@ -1087,7 +1087,7 @@ function getValidAction(models, methods) {
         for (var i = 0, l = props.length; i < l; i++) {
             if (typeof models[key][props[i]] === 'function' && models[key][props[i]].isMobxAction) {
                 assert(!methods[props[i]], "The \"" + props[i] + "\" method is already defined in methods.");
-                res[props[i]] = models[key][props[i]];
+                res[props[i]] = models[key][props[i]].bind(models[key]);
             }
         }
     });
