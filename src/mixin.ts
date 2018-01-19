@@ -7,6 +7,26 @@ import {
     createComputedProps,
 } from './utils';
 
+// components hooks
+const $internalHooks = [
+    'beforeMount',
+    'mounted',
+    'beforeDestroy',
+    'destroyed',
+    'beforeUpdate',
+    'updated',
+    'beforeRouteEnter',
+    'beforeRouteLeave',
+];
+
+// components resources
+const $internalResources = [
+    'filters',
+    'directives',
+    'components',
+    'computed',
+];
+
 export default function applyMixin(config: Config): void {
     assert(
         !!config, 
