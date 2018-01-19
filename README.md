@@ -76,39 +76,12 @@ export default test;
 </template>    
 <script>
     import testModel from './mobx/test';
-    import {connect} from 'vue-mobx';
 
-    const TestComponent = {
-
+    export default {
+        fromMobx: {
+            testModel
+        }
     }
-    
-    export default connect({
-        // map models
-        testModel
-    })(TestComponent)
-</script>
-```
-
-You also can use class syntax with [vue-class-component](https://github.com/vuejs/vue-class-component) and `vue-mobx@>=1.3.2`:
-
-```js
-<template>
-    <div>
-        <p>count: {{count}}</p>
-        <p @click="changeCount">Update</p>
-    </div>
-</template>    
-<script>
-    import testModel from './mobx/test';
-    import {connect} from 'vue-mobx';
-    import Vue from 'vue';
-    import Component from 'vue-class-component';
-
-    @connect({timeModel})
-    @Component
-    export default class TestComponent extends Vue {
-        name: string = 'info';
-    };
 </script>
 ```
 
