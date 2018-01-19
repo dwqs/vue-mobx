@@ -1,8 +1,10 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.VueMobx = factory());
-}(this, (function () { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
+	typeof define === 'function' && define.amd ? define(['vue'], factory) :
+	(global.VueMobx = factory(global.Vue));
+}(this, (function (Vue) { 'use strict';
+
+Vue = Vue && 'default' in Vue ? Vue['default'] : Vue;
 
 function unwrapExports (x) {
 	return x && x.__esModule ? x['default'] : x;
@@ -12,41 +14,6 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-// 7.2.1 RequireObjectCoercible(argument)
-var _defined = function(it){
-  if(it == undefined)throw TypeError("Can't call method on  " + it);
-  return it;
-};
-
-// 7.1.13 ToObject(argument)
-
-var _toObject = function(it){
-  return Object(_defined(it));
-};
-
-var hasOwnProperty = {}.hasOwnProperty;
-var _has = function(it, key){
-  return hasOwnProperty.call(it, key);
-};
-
-var toString = {}.toString;
-
-var _cof = function(it){
-  return toString.call(it).slice(8, -1);
-};
-
-// fallback for non-array-like ES3 and non-enumerable old V8 strings
-
-var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function(it){
-  return _cof(it) == 'String' ? it.split('') : Object(it);
-};
-
-// to indexed object, toObject with fallback for non-array-like ES3 strings
-
-var _toIobject = function(it){
-  return _iobject(_defined(it));
-};
-
 // 7.1.4 ToInteger
 var ceil  = Math.ceil;
 var floor = Math.floor;
@@ -54,38 +21,29 @@ var _toInteger = function(it){
   return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
 };
 
-// 7.1.15 ToLength
-var min       = Math.min;
-var _toLength = function(it){
-  return it > 0 ? min(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+// 7.2.1 RequireObjectCoercible(argument)
+var _defined = function(it){
+  if(it == undefined)throw TypeError("Can't call method on  " + it);
+  return it;
 };
 
-var max       = Math.max;
-var min$1       = Math.min;
-var _toIndex = function(index, length){
-  index = _toInteger(index);
-  return index < 0 ? max(index + length, 0) : min$1(index, length);
-};
-
-// false -> Array#indexOf
-// true  -> Array#includes
-
-var _arrayIncludes = function(IS_INCLUDES){
-  return function($this, el, fromIndex){
-    var O      = _toIobject($this)
-      , length = _toLength(O.length)
-      , index  = _toIndex(fromIndex, length)
-      , value;
-    // Array#includes uses SameValueZero equality algorithm
-    if(IS_INCLUDES && el != el)while(length > index){
-      value = O[index++];
-      if(value != value)return true;
-    // Array#toIndex ignores holes, Array#includes - not
-    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
-      if(O[index] === el)return IS_INCLUDES || index || 0;
-    } return !IS_INCLUDES && -1;
+// true  -> String#at
+// false -> String#codePointAt
+var _stringAt = function(TO_STRING){
+  return function(that, pos){
+    var s = String(_defined(that))
+      , i = _toInteger(pos)
+      , l = s.length
+      , a, b;
+    if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
+    a = s.charCodeAt(i);
+    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+      ? TO_STRING ? s.charAt(i) : a
+      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
   };
 };
+
+var _library = true;
 
 var _global = createCommonjsModule(function (module) {
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -93,51 +51,6 @@ var global = module.exports = typeof window != 'undefined' && window.Math == Mat
   ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
 if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
 });
-
-var SHARED = '__core-js_shared__';
-var store  = _global[SHARED] || (_global[SHARED] = {});
-var _shared = function(key){
-  return store[key] || (store[key] = {});
-};
-
-var id = 0;
-var px = Math.random();
-var _uid = function(key){
-  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-};
-
-var shared = _shared('keys');
-var _sharedKey = function(key){
-  return shared[key] || (shared[key] = _uid(key));
-};
-
-var arrayIndexOf = _arrayIncludes(false);
-var IE_PROTO     = _sharedKey('IE_PROTO');
-
-var _objectKeysInternal = function(object, names){
-  var O      = _toIobject(object)
-    , i      = 0
-    , result = []
-    , key;
-  for(key in O)if(key != IE_PROTO)_has(O, key) && result.push(key);
-  // Don't enum bug & hidden keys
-  while(names.length > i)if(_has(O, key = names[i++])){
-    ~arrayIndexOf(result, key) || result.push(key);
-  }
-  return result;
-};
-
-// IE 8- don't enum bug keys
-var _enumBugKeys = (
-  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-).split(',');
-
-// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-
-
-var _objectKeys = Object.keys || function keys(O){
-  return _objectKeysInternal(O, _enumBugKeys);
-};
 
 var _core = createCommonjsModule(function (module) {
 var core = module.exports = {version: '2.4.0'};
@@ -307,132 +220,110 @@ $export.U = 64;  // safe
 $export.R = 128; // real proto method for `library` 
 var _export = $export;
 
-// most Object methods by ES6 should accept primitives
-
-var _objectSap = function(KEY, exec){
-  var fn  = (_core.Object || {})[KEY] || Object[KEY]
-    , exp = {};
-  exp[KEY] = exec(fn);
-  _export(_export.S + _export.F * _fails(function(){ fn(1); }), 'Object', exp);
-};
-
-// 19.1.2.14 Object.keys(O)
-
-
-_objectSap('keys', function(){
-  return function keys(it){
-    return _objectKeys(_toObject(it));
-  };
-});
-
-var keys$1 = _core.Object.keys;
-
-var keys = createCommonjsModule(function (module) {
-module.exports = { "default": keys$1, __esModule: true };
-});
-
-var _Object$keys = unwrapExports(keys);
-
-// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-var hiddenKeys = _enumBugKeys.concat('length', 'prototype');
-
-var f$2 = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
-  return _objectKeysInternal(O, hiddenKeys);
-};
-
-var _objectGopn = {
-	f: f$2
-};
-
-// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-var gOPN      = _objectGopn.f;
-var toString$1  = {}.toString;
-
-var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
-  ? Object.getOwnPropertyNames(window) : [];
-
-var getWindowNames = function(it){
-  try {
-    return gOPN(it);
-  } catch(e){
-    return windowNames.slice();
-  }
-};
-
-var f$1 = function getOwnPropertyNames(it){
-  return windowNames && toString$1.call(it) == '[object Window]' ? getWindowNames(it) : gOPN(_toIobject(it));
-};
-
-var _objectGopnExt = {
-	f: f$1
-};
-
-// 19.1.2.7 Object.getOwnPropertyNames(O)
-_objectSap('getOwnPropertyNames', function(){
-  return _objectGopnExt.f;
-});
-
-var $Object = _core.Object;
-var getOwnPropertyNames$1 = function getOwnPropertyNames(it){
-  return $Object.getOwnPropertyNames(it);
-};
-
-var getOwnPropertyNames = createCommonjsModule(function (module) {
-module.exports = { "default": getOwnPropertyNames$1, __esModule: true };
-});
-
-var _Object$getOwnPropertyNames = unwrapExports(getOwnPropertyNames);
-
-// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-var IE_PROTO$1    = _sharedKey('IE_PROTO');
-var ObjectProto = Object.prototype;
-
-var _objectGpo = Object.getPrototypeOf || function(O){
-  O = _toObject(O);
-  if(_has(O, IE_PROTO$1))return O[IE_PROTO$1];
-  if(typeof O.constructor == 'function' && O instanceof O.constructor){
-    return O.constructor.prototype;
-  } return O instanceof Object ? ObjectProto : null;
-};
-
-// 19.1.2.9 Object.getPrototypeOf(O)
-
-
-_objectSap('getPrototypeOf', function(){
-  return function getPrototypeOf(it){
-    return _objectGpo(_toObject(it));
-  };
-});
-
-var getPrototypeOf$1 = _core.Object.getPrototypeOf;
-
-var getPrototypeOf = createCommonjsModule(function (module) {
-module.exports = { "default": getPrototypeOf$1, __esModule: true };
-});
-
-var _Object$getPrototypeOf = unwrapExports(getPrototypeOf);
-
-// true  -> String#at
-// false -> String#codePointAt
-var _stringAt = function(TO_STRING){
-  return function(that, pos){
-    var s = String(_defined(that))
-      , i = _toInteger(pos)
-      , l = s.length
-      , a, b;
-    if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
-    a = s.charCodeAt(i);
-    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-      ? TO_STRING ? s.charAt(i) : a
-      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-  };
-};
-
-var _library = true;
-
 var _redefine = _hide;
 
+var hasOwnProperty = {}.hasOwnProperty;
+var _has = function(it, key){
+  return hasOwnProperty.call(it, key);
+};
+
 var _iterators = {};
+
+var toString = {}.toString;
+
+var _cof = function(it){
+  return toString.call(it).slice(8, -1);
+};
+
+// fallback for non-array-like ES3 and non-enumerable old V8 strings
+
+var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function(it){
+  return _cof(it) == 'String' ? it.split('') : Object(it);
+};
+
+// to indexed object, toObject with fallback for non-array-like ES3 strings
+
+var _toIobject = function(it){
+  return _iobject(_defined(it));
+};
+
+// 7.1.15 ToLength
+var min       = Math.min;
+var _toLength = function(it){
+  return it > 0 ? min(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+};
+
+var max       = Math.max;
+var min$1       = Math.min;
+var _toIndex = function(index, length){
+  index = _toInteger(index);
+  return index < 0 ? max(index + length, 0) : min$1(index, length);
+};
+
+// false -> Array#indexOf
+// true  -> Array#includes
+
+var _arrayIncludes = function(IS_INCLUDES){
+  return function($this, el, fromIndex){
+    var O      = _toIobject($this)
+      , length = _toLength(O.length)
+      , index  = _toIndex(fromIndex, length)
+      , value;
+    // Array#includes uses SameValueZero equality algorithm
+    if(IS_INCLUDES && el != el)while(length > index){
+      value = O[index++];
+      if(value != value)return true;
+    // Array#toIndex ignores holes, Array#includes - not
+    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
+      if(O[index] === el)return IS_INCLUDES || index || 0;
+    } return !IS_INCLUDES && -1;
+  };
+};
+
+var SHARED = '__core-js_shared__';
+var store  = _global[SHARED] || (_global[SHARED] = {});
+var _shared = function(key){
+  return store[key] || (store[key] = {});
+};
+
+var id = 0;
+var px = Math.random();
+var _uid = function(key){
+  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+};
+
+var shared = _shared('keys');
+var _sharedKey = function(key){
+  return shared[key] || (shared[key] = _uid(key));
+};
+
+var arrayIndexOf = _arrayIncludes(false);
+var IE_PROTO$1     = _sharedKey('IE_PROTO');
+
+var _objectKeysInternal = function(object, names){
+  var O      = _toIobject(object)
+    , i      = 0
+    , result = []
+    , key;
+  for(key in O)if(key != IE_PROTO$1)_has(O, key) && result.push(key);
+  // Don't enum bug & hidden keys
+  while(names.length > i)if(_has(O, key = names[i++])){
+    ~arrayIndexOf(result, key) || result.push(key);
+  }
+  return result;
+};
+
+// IE 8- don't enum bug keys
+var _enumBugKeys = (
+  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+).split(',');
+
+// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+
+
+var _objectKeys = Object.keys || function keys(O){
+  return _objectKeysInternal(O, _enumBugKeys);
+};
 
 var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties){
   _anObject(O);
@@ -447,7 +338,7 @@ var _objectDps = _descriptors ? Object.defineProperties : function definePropert
 var _html = _global.document && document.documentElement;
 
 // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-var IE_PROTO$2    = _sharedKey('IE_PROTO');
+var IE_PROTO    = _sharedKey('IE_PROTO');
 var Empty       = function(){ /* empty */ };
 var PROTOTYPE$1   = 'prototype';
 
@@ -480,7 +371,7 @@ var _objectCreate = Object.create || function create(O, Properties){
     result = new Empty;
     Empty[PROTOTYPE$1] = null;
     // add "__proto__" for Object.getPrototypeOf polyfill
-    result[IE_PROTO$2] = O;
+    result[IE_PROTO] = O;
   } else result = createDict();
   return Properties === undefined ? result : _objectDps(result, Properties);
 };
@@ -513,6 +404,24 @@ _hide(IteratorPrototype, _wks('iterator'), function(){ return this; });
 var _iterCreate = function(Constructor, NAME, next){
   Constructor.prototype = _objectCreate(IteratorPrototype, {next: _propertyDesc(1, next)});
   _setToStringTag(Constructor, NAME + ' Iterator');
+};
+
+// 7.1.13 ToObject(argument)
+
+var _toObject = function(it){
+  return Object(_defined(it));
+};
+
+// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+var IE_PROTO$2    = _sharedKey('IE_PROTO');
+var ObjectProto = Object.prototype;
+
+var _objectGpo = Object.getPrototypeOf || function(O){
+  O = _toObject(O);
+  if(_has(O, IE_PROTO$2))return O[IE_PROTO$2];
+  if(typeof O.constructor == 'function' && O instanceof O.constructor){
+    return O.constructor.prototype;
+  } return O instanceof Object ? ObjectProto : null;
 };
 
 var ITERATOR       = _wks('iterator');
@@ -638,10 +547,10 @@ for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList'
   _iterators[NAME] = _iterators.Array;
 }
 
-var f$3 = _wks;
+var f$1 = _wks;
 
 var _wksExt = {
-	f: f$3
+	f: f$1
 };
 
 var iterator$2 = _wksExt.f('iterator');
@@ -719,16 +628,16 @@ var _keyof = function(object, el){
   while(length > index)if(O[key = keys[index++]] === el)return key;
 };
 
-var f$4 = Object.getOwnPropertySymbols;
+var f$2 = Object.getOwnPropertySymbols;
 
 var _objectGops = {
-	f: f$4
+	f: f$2
 };
 
-var f$5 = {}.propertyIsEnumerable;
+var f$3 = {}.propertyIsEnumerable;
 
 var _objectPie = {
-	f: f$5
+	f: f$3
 };
 
 // all enumerable object keys, includes symbols
@@ -751,6 +660,40 @@ var _isArray = Array.isArray || function isArray(arg){
   return _cof(arg) == 'Array';
 };
 
+// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
+var hiddenKeys = _enumBugKeys.concat('length', 'prototype');
+
+var f$5 = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
+  return _objectKeysInternal(O, hiddenKeys);
+};
+
+var _objectGopn = {
+	f: f$5
+};
+
+// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+var gOPN$1      = _objectGopn.f;
+var toString$1  = {}.toString;
+
+var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
+  ? Object.getOwnPropertyNames(window) : [];
+
+var getWindowNames = function(it){
+  try {
+    return gOPN$1(it);
+  } catch(e){
+    return windowNames.slice();
+  }
+};
+
+var f$4 = function getOwnPropertyNames(it){
+  return windowNames && toString$1.call(it) == '[object Window]' ? getWindowNames(it) : gOPN$1(_toIobject(it));
+};
+
+var _objectGopnExt = {
+	f: f$4
+};
+
 var gOPD$1           = Object.getOwnPropertyDescriptor;
 
 var f$6 = _descriptors ? gOPD$1 : function getOwnPropertyDescriptor(O, P){
@@ -770,7 +713,7 @@ var _objectGopd = {
 var META           = _meta.KEY;
 var gOPD           = _objectGopd.f;
 var dP$1             = _objectDp.f;
-var gOPN$1           = _objectGopnExt.f;
+var gOPN           = _objectGopnExt.f;
 var $Symbol        = _global.Symbol;
 var $JSON          = _global.JSON;
 var _stringify     = $JSON && $JSON.stringify;
@@ -852,7 +795,7 @@ var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
   return D;
 };
 var $getOwnPropertyNames = function getOwnPropertyNames(it){
-  var names  = gOPN$1(_toIobject(it))
+  var names  = gOPN(_toIobject(it))
     , result = []
     , i      = 0
     , key;
@@ -862,7 +805,7 @@ var $getOwnPropertyNames = function getOwnPropertyNames(it){
 };
 var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
   var IS_OP  = it === ObjectProto$1
-    , names  = gOPN$1(IS_OP ? OPSymbols : _toIobject(it))
+    , names  = gOPN(IS_OP ? OPSymbols : _toIobject(it))
     , result = []
     , i      = 0
     , key;
@@ -1013,6 +956,85 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 
 var _typeof = unwrapExports(_typeof_1);
 
+// most Object methods by ES6 should accept primitives
+
+var _objectSap = function(KEY, exec){
+  var fn  = (_core.Object || {})[KEY] || Object[KEY]
+    , exp = {};
+  exp[KEY] = exec(fn);
+  _export(_export.S + _export.F * _fails(function(){ fn(1); }), 'Object', exp);
+};
+
+// 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+var $getOwnPropertyDescriptor$1 = _objectGopd.f;
+
+_objectSap('getOwnPropertyDescriptor', function(){
+  return function getOwnPropertyDescriptor(it, key){
+    return $getOwnPropertyDescriptor$1(_toIobject(it), key);
+  };
+});
+
+var $Object = _core.Object;
+var getOwnPropertyDescriptor$1 = function getOwnPropertyDescriptor(it, key){
+  return $Object.getOwnPropertyDescriptor(it, key);
+};
+
+var getOwnPropertyDescriptor = createCommonjsModule(function (module) {
+module.exports = { "default": getOwnPropertyDescriptor$1, __esModule: true };
+});
+
+var _Object$getOwnPropertyDescriptor = unwrapExports(getOwnPropertyDescriptor);
+
+// 19.1.2.14 Object.keys(O)
+
+
+_objectSap('keys', function(){
+  return function keys(it){
+    return _objectKeys(_toObject(it));
+  };
+});
+
+var keys$1 = _core.Object.keys;
+
+var keys = createCommonjsModule(function (module) {
+module.exports = { "default": keys$1, __esModule: true };
+});
+
+var _Object$keys = unwrapExports(keys);
+
+// 19.1.2.7 Object.getOwnPropertyNames(O)
+_objectSap('getOwnPropertyNames', function(){
+  return _objectGopnExt.f;
+});
+
+var $Object$1 = _core.Object;
+var getOwnPropertyNames$1 = function getOwnPropertyNames(it){
+  return $Object$1.getOwnPropertyNames(it);
+};
+
+var getOwnPropertyNames = createCommonjsModule(function (module) {
+module.exports = { "default": getOwnPropertyNames$1, __esModule: true };
+});
+
+var _Object$getOwnPropertyNames = unwrapExports(getOwnPropertyNames);
+
+// 19.1.2.9 Object.getPrototypeOf(O)
+
+
+_objectSap('getPrototypeOf', function(){
+  return function getPrototypeOf(it){
+    return _objectGpo(_toObject(it));
+  };
+});
+
+var getPrototypeOf$1 = _core.Object.getPrototypeOf;
+
+var getPrototypeOf = createCommonjsModule(function (module) {
+module.exports = { "default": getPrototypeOf$1, __esModule: true };
+});
+
+var _Object$getPrototypeOf = unwrapExports(getPrototypeOf);
+
 const __assign = Object.assign || function (target) {
     for (var source, i = 1; i < arguments.length; i++) {
         source = arguments[i];
@@ -1033,7 +1055,7 @@ var Options = function () {
     return Options;
 }();
 
-function isObject(data) {
+function isObject$1(data) {
     return data !== null && (typeof data === 'undefined' ? 'undefined' : _typeof(data)) === 'object';
 }
 function assert(condition, msg) {
@@ -1041,7 +1063,8 @@ function assert(condition, msg) {
         throw new Error("[vue-mobx]: " + msg);
     }
 }
-var $mobx = '__mobxLazyInitializers';
+var $mobx = '__mobxDidRunLazyInitializers';
+var $$mobx = '$mobx';
 function getProto(obj) {
     return _Object$getPrototypeOf(obj);
 }
@@ -1057,24 +1080,13 @@ function getValidModel(models) {
     });
     return res;
 }
-function getValidAction(models) {
+function getValidAction(models, methods) {
     var res = {};
     _Object$keys(models).forEach(function (key) {
         var props = getOwnProps(getProto(models[key]));
         for (var i = 0, l = props.length; i < l; i++) {
             if (typeof models[key][props[i]] === 'function' && models[key][props[i]].isMobxAction) {
-                res[props[i]] = models[key][props[i]];
-            }
-        }
-    });
-    return res;
-}
-function getMobxData(models) {
-    var res = {};
-    _Object$keys(models).forEach(function (key) {
-        var props = getOwnProps(getProto(models[key]));
-        for (var i = 0, l = props.length; i < l; i++) {
-            if (props[i] !== 'constructor' && props[i] !== $mobx && typeof models[key][props[i]] !== 'function') {
+                assert(!methods[props[i]], "The \"" + props[i] + "\" method is already defined in methods.");
                 res[props[i]] = models[key][props[i]];
             }
         }
@@ -1082,39 +1094,73 @@ function getMobxData(models) {
     return res;
 }
 
-function applyMixin(instance, config) {
-    assert(!!config, "missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('toJS') && typeof config.toJS === 'function', "missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
-    var version = Number(instance.version.split('.')[0]);
-    if (version >= 2) {
-        instance.mixin({
-            beforeCreate: function beforeCreate() {
+function createComputedProps(models, data, computed, vm) {
+    var res = {};
+    _Object$keys(models).forEach(function (key) {
+        var model = models[key];
+        var props = getOwnProps(getProto(model));
+        var _loop_1 = function _loop_1(i, l) {
+            if (props[i] !== $mobx && props[i] !== $$mobx && props[i] !== 'constructor' && typeof model[props[i]] !== 'function') {
+                assert(!(props[i] in data), "The computed property \"" + props[i] + "\"  is already defined in data.");
+                assert(!(props[i] in computed), "The computed property \"" + props[i] + "\" is already defined in computed.");
+                var property_1 = _Object$getOwnPropertyDescriptor(model, props[i]);
+                _Vue.util.defineReactive(model, props[i], null, null, true);
+                res[props[i]] = {
+                    get: function get() {
+                        return model[props[i]];
+                    },
+                    set: function set(val) {
+                        property_1.set.call(vm, val);
+                    }
+                };
+            }
+        };
+        for (var i = 0, l = props.length; i < l; i++) {
+            _loop_1(i, l);
+        }
+    });
+    return res;
+}
+
+function applyMixin(config) {
+    assert(_Vue, "must call Vue.use(VueMobx) to init vue-mobx config.");
+    _Vue.mixin({
+        beforeCreate: function beforeCreate() {
+            if (this.$options.fromMobx) {
+                var mapModels = this.$options.fromMobx;
+                assert(isObject$1(mapModels), "fromMobx should be a object not " + (typeof mapModels === 'undefined' ? 'undefined' : _typeof(mapModels)));
+                var _data = typeof this.$options.data === 'function' && this.$options.data() || {};
+                var _computed = this.$options.computed || {};
+                var _methods = this.$options.methods || {};
+                var validModels = getValidModel(mapModels);
+                var validActions = getValidAction(validModels, _methods);
+                this.$options.methods = __assign({}, _methods, validActions);
+                var computedProps = createComputedProps(validModels, _data, _computed, this);
+                this.$options.computed = __assign({}, _computed, computedProps);
                 this.$toJS = config.toJS;
                 this.$isObservable = config.isObservable;
                 if (config.observable && typeof config.observable === 'function') {
                     this.$observable = config.observable;
                 }
             }
-        });
-    } else {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error("[vue-mobx] only adapted to Vue 2 or higher, the Vue version used is " + version + ". Upgrade vue version of your project, please.");
         }
-    }
+    });
 }
 
-var vm;
+var _Vue;
 function install(instance, config) {
-    if (vm) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('[vue-mobx] already installed. Vue.use(VuexMobx) should be called only once.');
-        }
+    var version = Number(instance.version.split('.')[0]);
+    assert(version >= 2, "[vue-mobx] only adapted to Vue 2 or higher, the Vue version used is " + version + ". Upgrade vue version of your project, please.");
+    if (install.installed) {
         return;
     }
-    vm = instance;
+    install.installed = true;
+    _Vue = Vue;
+    assert(!!config, "missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('toJS') && typeof config.toJS === 'function', "missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx");
+    assert(config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', "missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx");
     Options.saveOptions(config);
-    applyMixin(vm, config);
+    applyMixin(config);
 }
 if (typeof window !== 'undefined' && window.Vue && window.mobx) {
     install(window.Vue, {
@@ -1124,103 +1170,8 @@ if (typeof window !== 'undefined' && window.Vue && window.mobx) {
     });
 }
 
-// 19.1.2.1 Object.assign(target, source, ...)
-var $assign  = Object.assign;
-
-// should work with symbols and should have deterministic property order (V8 bug)
-var _objectAssign = !$assign || _fails(function(){
-  var A = {}
-    , B = {}
-    , S = Symbol()
-    , K = 'abcdefghijklmnopqrst';
-  A[S] = 7;
-  K.split('').forEach(function(k){ B[k] = k; });
-  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-}) ? function assign(target, source){ // eslint-disable-line no-unused-vars
-  var T     = _toObject(target)
-    , aLen  = arguments.length
-    , index = 1
-    , getSymbols = _objectGops.f
-    , isEnum     = _objectPie.f;
-  while(aLen > index){
-    var S      = _iobject(arguments[index++])
-      , keys   = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S)
-      , length = keys.length
-      , j      = 0
-      , key;
-    while(length > j)if(isEnum.call(S, key = keys[j++]))T[key] = S[key];
-  } return T;
-} : $assign;
-
-// 19.1.3.1 Object.assign(target, source)
-
-
-_export(_export.S + _export.F, 'Object', {assign: _objectAssign});
-
-var assign$1 = _core.Object.assign;
-
-var assign = createCommonjsModule(function (module) {
-module.exports = { "default": assign$1, __esModule: true };
-});
-
-var _Object$assign = unwrapExports(assign);
-
-var $internalHooks = ['beforeMount', 'mounted', 'beforeDestroy', 'destroyed', 'beforeUpdate', 'updated', 'beforeRouteEnter', 'beforeRouteLeave'];
-var $internalResources = ['filters', 'directives', 'components', 'computed'];
-function connect(mapModels) {
-    return function connectedComponent(vueComponent) {
-        assert(isObject(mapModels), "mapData should be a object not " + (typeof mapModels === 'undefined' ? 'undefined' : _typeof(mapModels)));
-        var validModels = getValidModel(mapModels);
-        var validActions = getValidAction(validModels);
-        var mobxData = getMobxData(validModels);
-        var oldMethodsAndData = {
-            data: {},
-            methods: {}
-        };
-        var vm;
-        var enhanceVueComponent;
-        if ((typeof vueComponent === 'undefined' ? 'undefined' : _typeof(vueComponent)) === 'object') {
-            oldMethodsAndData = {
-                data: vueComponent.data && vueComponent.data() || {},
-                methods: vueComponent.methods || {}
-            };
-        } else {
-            vm = new vueComponent();
-            oldMethodsAndData = {
-                data: vm._data || {},
-                methods: vm.$options.methods || {}
-            };
-            enhanceVueComponent = _Object$assign({}, {
-                data: function data() {
-                    return _Object$assign({}, oldMethodsAndData.data, mobxData);
-                },
-                methods: _Object$assign({}, oldMethodsAndData.methods, validActions)
-            });
-            $internalHooks.forEach(function (hook) {
-                if (vm.$options[hook]) {
-                    enhanceVueComponent[hook] = vm.$options[hook];
-                }
-            });
-            $internalResources.forEach(function (res) {
-                if (vm.$options[res]) {
-                    enhanceVueComponent[res] = vm.$options[res];
-                }
-            });
-            return enhanceVueComponent;
-        }
-        enhanceVueComponent = _Object$assign(vueComponent, {
-            methods: __assign({}, _Object$assign(oldMethodsAndData.methods, __assign({}, validActions))),
-            data: function data() {
-                return _Object$assign(oldMethodsAndData.data, __assign({}, mobxData));
-            }
-        });
-        return enhanceVueComponent;
-    };
-}
-
 var VueMobx = {
-    install: install,
-    connect: connect
+    install: install
 };
 
 return VueMobx;
