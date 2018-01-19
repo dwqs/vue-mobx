@@ -87,7 +87,7 @@ export default test;
 
 There is a full [example](https://github.com/dwqs/vue-mobx/tree/master/example).
 
-You can also hot-link the CDN version: [https://unpkg.com/vue-mobx/dist/index.min.js](https://unpkg.com/vue-mobx@0.2.6/dist/index.min.js), `VueMobx` is exposed to `window` object.
+You can also hot-link the CDN version: [https://unpkg.com/vue-mobx/dist/index.js](https://unpkg.com/vue-mobx@2.0.0/dist/index.js), `VueMobx` is exposed to `window` object.
 
 ## LICENSE
 
