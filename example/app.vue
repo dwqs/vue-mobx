@@ -14,22 +14,19 @@
 
 <script>
     import testModel from './models/test';
-    import {connect} from 'vue-mobx';
-
-    const TestComponent = {
+    export default {
         data(){
             return {
                 title: 'test'
             }
         },
 
+        fromMobx: {
+            testModel
+        },
+
         updated(){
             console.log('info updated', this.$toJS(this.info));
         }
     };
-
-    export default connect({
-        // map models
-        testModel
-    })(TestComponent)
 </script>

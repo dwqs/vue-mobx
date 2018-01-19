@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from "vue-router";
 import {observable, isObservable, toJS} from 'mobx';
-import VueMobx from 'vue-mobx';
+import VueMobx from '../dist/index';
 
 Vue.use(VueRouter);
 Vue.use(VueMobx, {
