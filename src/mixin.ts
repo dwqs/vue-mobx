@@ -30,20 +30,7 @@ const $internalResources = [
 ];
 
 export default function applyMixin(config: Config): void {
-    assert(
-        !!config, 
-        `missed config parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
-    );
-    
-    assert(
-        config.hasOwnProperty('toJS') && typeof config.toJS === 'function', 
-        `missed config#toJS parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
-    );
-
-    assert(
-        config.hasOwnProperty('isObservable') && typeof config.isObservable === 'function', 
-        `missed config#isObservable parameter, here is the doc: https://github.com/dwqs/vue-mobx`,
-    );
+    assert((_Vue as any), `must call Vue.use(VueMobx) to init vue-mobx config.`);
 
     _Vue.mixin({
         beforeCreate() {
