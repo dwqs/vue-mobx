@@ -8,7 +8,7 @@ import {
 } from './utils';
 
 // components hooks
-// tslint:disable-next-line:never-used
+// tslint:disable-next-line:no-unused-variable
 const $internalHooks = [
     'beforeMount',
     'mounted',
@@ -21,7 +21,7 @@ const $internalHooks = [
 ];
 
 // components resources
-// tslint:disable-next-line:never-used
+// tslint:disable-next-line:no-unused-variable
 const $internalResources = [
     'filters',
     'directives',
