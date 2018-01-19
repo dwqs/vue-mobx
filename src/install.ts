@@ -1,23 +1,24 @@
 import Vue from 'vue';
 
 import applyMixin from './mixin';
+import { assert } from './utils';
 import { Config, Options } from './options'
 
-
-let vm: typeof Vue; 
+// tslint:disable-next-line:variable-name
+export let _Vue: typeof Vue;
 
 export function install(instance: typeof Vue, config: Config) {
-    if (vm) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error(
-                '[vue-mobx] already installed. Vue.use(VuexMobx) should be called only once.',
-            )
-        }
+    const version = Number((instance as any).version.split('.')[0]);
+    assert(version >= 2, `[vue-mobx] only adapted to Vue 2 or higher, the Vue version used is ${version}. Upgrade vue version of your project, please.`);
+
+    if ((install as any).installed) {
         return;
     }
-    vm = instance;
+    (install as any).installed = true;
+
+    _Vue = Vue;
     Options.saveOptions(config);
-    applyMixin(vm, config)
+    applyMixin(config);
 }
 
 if (typeof window !== 'undefined' && (window as any).Vue && (window as any).mobx) {
