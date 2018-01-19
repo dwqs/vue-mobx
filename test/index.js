@@ -21,13 +21,19 @@ class TestModel{
         project: 'vue-mobx'
     }
 
-    @action.bound
+    @action
     changeName(){
         this.name = 'mobx-vue';
     }
 
     changeCount(){
         this.count = 2; 
+    }
+
+    @action
+    async actionTest () {
+        const v = await Promise.resolve('async action');
+        this.name = v;
     }
 }
 
@@ -112,7 +118,7 @@ class Model2 {
 }
 
 test('test methods and data change', (t) => {
-    // t.plan(9);
+    t.plan(8);
 
     let testModel = new TestModel();
 
@@ -140,6 +146,34 @@ test('test methods and data change', (t) => {
 
     // call method
     vm.changeName();
-    
+
     t.is(vm.name, 'mobx-vue');
+});
+
+test('test async action', async (t) => {
+    t.plan(4);
+
+    let testModel = new TestModel();
+
+    const vm = new Vue({
+        template: '<div>vm1</div>',
+        fromMobx: {
+            testModel
+        }
+    });
+
+    const vm2 = new Vue({
+        template: '<div>vm2</div>',
+        fromMobx: {
+            testModel
+        }
+    });
+
+    t.is(vm.name, 'vue-mobx');
+    t.is(vm2.name, 'vue-mobx');
+
+    await vm.actionTest();
+
+    t.is(vm.name, 'async action');
+    t.is(vm2.name, 'async action');
 });
