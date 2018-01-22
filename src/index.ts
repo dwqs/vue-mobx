@@ -10,3 +10,11 @@ const VueMobx: PluginObject<Config> = {
 }
 
 export default VueMobx;
+
+if (typeof window !== 'undefined' && (window as any).Vue && (window as any).mobx) {
+    (window as any).Vue.use(VueMobx, {
+        isObservable: (window as any).mobx.isObservable,
+        toJS: (window as any).mobx.toJS,
+        observable: (window as any).mobx.observable,
+    })
+}
