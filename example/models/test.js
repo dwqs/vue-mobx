@@ -37,3 +37,6 @@ class Test {
         this.deleteTodo = list;
     }
 }
+
+const test = new Test();
+export default test
