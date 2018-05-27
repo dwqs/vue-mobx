@@ -50,7 +50,7 @@ Vue.use(VueMobx, {
 
 import {observable, action} from 'mobx';
 
-Class Test {
+class Test {
     @observable
     count = 0;
 
